@@ -39,7 +39,7 @@ const message = {
 
 var output=[]
 var OKList=[]
-var NoList=["已被送中节点 ➟ "]
+var NoList=["OpenAI失效节点 ➟ "]
 var ErrorList=["检测出错节点 ➟ "]
 var pflag=1 //是否是策略，或者简单节点
 var sign=0 //是否停止
@@ -53,14 +53,14 @@ $configuration.sendMessage(message).then(resolve => {
         //console.log(JSON.stringify(resolve.ret))
         output=JSON.stringify(resolve.ret[message.content])? JSON.parse(JSON.stringify(resolve.ret[message.content]["candidates"])) : [policy]
         pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
-        console.log("Google 送中检测 检测")
+        console.log("OpenAI 检测")
         console.log("节点or策略组："+pflag)
 
         if (pflag==1) {
         console.log("节点数量："+resolve.ret[policy]["candidates"].length)
 
         if(resolve.ret[policy]["candidates"].length==0) {
-            $done({"title":"Google 送中检测","htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 无有效节点</b>`});
+            $done({"title":"OpenAI 检测","htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 无有效节点</b>`});
         }
     }
 
@@ -80,7 +80,7 @@ function Len(cnt) {
 function Check() {
     var relay = 2000;
     for ( var i=0;i < output.length;i++) {
-        testGoogle(output[i])
+        testOpenAI(output[i])
         }
     if (output.length<=5) {
         relay = 2000
@@ -102,13 +102,13 @@ function Check() {
         if (OKList[0] && pflag==1) { //有支持节点、且为策略组才操作
             ReOrder(OKList)
             } else if (!OKList[0]){ //不支持
-                content =pflag==0 ? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点已被 Google 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`: `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+policy+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到未被 Google 送中</b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
+                content =pflag==0 ? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点已被 OpenAI 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`: `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+policy+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到未被 OpenAI 送中</b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
                 //为节点且检测超时/出错
-                content = pflag==0 && Len(NoList)==0 ? content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>⚠️ 该节点 Google 送中检测失败 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`: content
-                $done({"title":"Google 送中检测&切换", "htmlMessage": content})
+                content = pflag==0 && Len(NoList)==0 ? content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>⚠️ 该节点 OpenAI 送中检测失败 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`: content
+                $done({"title":"OpenAI 送中检测&切换", "htmlMessage": content})
             } else if (OKList[0]){ //支持, 但为节点
-            content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点未被 Google 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`
-            $done({"title":"Google 送中检测&切换", "htmlMessage": content})
+            content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点未被 OpenAI 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`
+            $done({"title":"OpenAI 送中检测&切换", "htmlMessage": content})
         } 
     }, relay)
     
@@ -154,15 +154,15 @@ function ReOrder(cnt) {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content =pflag==0 && array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点未被 Google 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点已被 Google 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`
-                content = pflag!=0 && !array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+policy+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到未被 Google 送中</b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>` : content
-                $done({"title":"Google 送中检测&切换", "htmlMessage": content})
+                content =pflag==0 && array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点未被 OpenAI 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点已被 OpenAI 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+policy+` ⟧ </b><br>-------------------------</font>`
+                content = pflag!=0 && !array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+policy+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到未被 OpenAI 送中</b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>` : content
+                $done({"title":"OpenAI 送中检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至未被 <b>Google 送中</b> 的路线中延迟最优节点 ➟ "+array[0])
-                if (cronsign == "Y") { $notify("🐸 Google 定时送中检测&切换", "🎉 已切换至未被送中的最优延迟线路👇", array[0] +"\n 👉 "+Ping)}
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+policy+ " ⟧ </b>已切换至未被<b>Google</b> 送中延迟最优路线<br><br> 👇<br><br> ⟦ "+array[0]+ " ⟧" + "<br><br><font color=#16A085>"+Ping+"</font><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
-                $done({"title":"Google 送中检测&切换", "htmlMessage": content })
+                console.log("已经切换至未被 <b>OpenAI 送中</b> 的路线中延迟最优节点 ➟ "+array[0])
+                if (cronsign == "Y") { $notify("🐸 OpenAI 定时送中检测&切换", "🎉 已切换至未被送中的最优延迟线路👇", array[0] +"\n 👉 "+Ping)}
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+policy+ " ⟧ </b>已切换至未被<b>OpenAI</b> 送中延迟最优路线<br><br> 👇<br><br> ⟦ "+array[0]+ " ⟧" + "<br><br><font color=#16A085>"+Ping+"</font><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
+                $done({"title":"OpenAI 送中检测&切换", "htmlMessage": content })
             }
     }, reject => {
             $done();
@@ -177,16 +177,16 @@ function ReOrder(cnt) {
 }
 
 
-function testGoogle(pname) {
+function testOpenAI(pname) {
     return new Promise((resolve, reject) => {
-        const url = `https://www.google.com/maps/timeline`;
+        const url = `https://chat.openai.com/`;
         let opts = { policy : pname }
         const method = `GET`;
         const headers = {
             'Accept-Encoding' : `gzip, deflate, br`,
             'Connection' : `keep-alive`,
             'Accept' : `text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`,
-            'Host' : `www.google.com`,
+            'Host' : `www..com`,
             'User-Agent' : `Mozilla/5.0 (iPhone; CPU iPhone OS 15_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Mobile/15E148 Safari/604.1`,
             'Accept-Language' : `zh-CN,zh-Hans;q=0.9`
         };
