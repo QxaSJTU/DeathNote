@@ -204,6 +204,7 @@ function testChatGPT(pname) {
       let jdg = resp.indexOf("text/plain") // 检查响应中是否含有"text/plain"
 
       if (jdg == -1) {  // 如果没有找到"text/plain"
+        var opts1 = {policy: pname,redirection: false};
         let option1 = {
           url: Region_URL_GPT,  // 地区特定的ChatGPT URL
           opts: opts1,          // 使用相同的请求配置
