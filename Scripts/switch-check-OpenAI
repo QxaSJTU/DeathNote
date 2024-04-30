@@ -189,6 +189,7 @@ function testChatGPT(pname) {
     }
     // 发起HTTP请求
     $task.fetch(option).then(response => {
+      let sCode = response.statusCode
       let resp = JSON.stringify(response)  // 将响应转换为JSON字符串
       console.log("ChatGPT Main Test")     // 控制台输出测试信息
       let jdg = resp.indexOf("text/plain") // 检查响应中是否含有"text/plain"
