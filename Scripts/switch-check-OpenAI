@@ -182,7 +182,7 @@ function testChatGPT(pname) {
     // 定义请求选项
     var opts1 = {policy: pname,redirection: false};
     let option = {
-      url: https://chat.openai.com/,  // ChatGPT的基本URL
+      url: 'https://chat.openai.com/',  // ChatGPT的基本URL
       opts: opts1,        // 一些配置选项，可能包括如何处理HTTP请求、超时设置等
       timeout: 2800,      // 请求超时时间设置为2800毫秒
     }
