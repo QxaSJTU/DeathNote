@@ -80,7 +80,7 @@ function Len(cnt) {
 function Check() {
     var relay = 2000;
     for ( var i=0;i < output.length;i++) {
-        testOpenAI(output[i])
+        testChatGPT(output[i])
         }
     if (output.length<=5) {
         relay = 2000
@@ -174,6 +174,71 @@ function ReOrder(cnt) {
     // Normally will never happen.
     $done();
 });
+}
+
+
+function testChatGPT(pname) {
+  return new Promise((resolve, reject) => {
+    // 定义请求选项
+    var opts1 = {policy: pname,redirection: false};
+    let option = {
+      url: BASE_URL_GPT,  // ChatGPT的基本URL
+      opts: opts1,        // 一些配置选项，可能包括如何处理HTTP请求、超时设置等
+      timeout: 2800,      // 请求超时时间设置为2800毫秒
+    }
+    // 发起HTTP请求
+    $task.fetch(option).then(response => {
+      let resp = JSON.stringify(response)  // 将响应转换为JSON字符串
+      console.log("ChatGPT Main Test")     // 控制台输出测试信息
+      let jdg = resp.indexOf("text/plain") // 检查响应中是否含有"text/plain"
+
+      if (jdg == -1) {  // 如果没有找到"text/plain"
+        let option1 = {
+          url: Region_URL_GPT,  // 地区特定的ChatGPT URL
+          opts: opts1,          // 使用相同的请求配置
+          timeout: 2800,        // 相同的超时设置
+        }
+        // 再次发起HTTP请求，此次针对特定地区的URL
+        $task.fetch(option1).then(response => {
+          console.log("ChatGPT Region Test")  // 输出地区测试信息
+          // 从响应体中提取地区代码
+          let region = response.body.split("loc=")[1].split("\n")[0]
+          console.log("ChatGPT Region: " + region)  // 输出地区代码
+          // 检查地区代码是否在支持的国家代码列表中
+          let res = support_countryCodes.indexOf(region)
+          if (res != -1) {
+            // 如果找到，设置结果为支持，并显示对应的国家旗帜
+            OKList.push(pname)//结束前推送
+            console.log(pname + ": 该节点未被送中 ->" +sCode)
+            resolve("No")
+            return
+          } else {
+            // 如果不支持，设置相应的结果
+            NoList.push(pname)
+            console.log(pname + ": 该节点已被送中 ->" +sCode)
+            resolve("YES")
+            return
+          }
+        }, reason => {
+          // 请求失败的错误处理
+          console.log("Check-Error" + reason)
+          resolve("ChatGPT failed")  // 解析为测试失败
+        })
+      } else {
+        // 如果主请求中找到了"text/plain"
+        result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"
+        console.log("不支持 ChatGPT")
+        resolve("不支持 ChatGPT")
+      }
+    }, reason => {
+            if (sign==0) {
+            ErrorList.push(pname)
+            console.log(pname + ": 该节点检测失败")
+            reject("Error")
+        }
+            return
+        })
+  })
 }
 
 
